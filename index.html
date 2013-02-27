@@ -17,6 +17,44 @@
         <link rel="stylesheet" href="assets/css/supersized.css">
         <link rel="stylesheet" href="assets/css/style.css">
         <link rel="stylesheet" href="http://vjs.zencdn.net/c/video-js.css">
+        <style>
+
+            <!--
+
+            .mp3-container {
+                border: 0px solid #009BE3;
+                padding:0 20px;
+                font-family: "Myriad Pro Regular","Trebuchet MS";
+            }
+
+            .mp3-container a, .mp3-container a:link, .mp3-container a:visited, .mp3-container a:hover, .mp3-container a:focus, .mp3-container a:active {
+                color: #009BE3;
+            }
+
+            .mp3-container ul {
+                list-style-type:none;
+                padding:0;
+                margin:1em 0;
+                width:100%;
+                overflow:hidden;
+            }
+
+            .mp3-container ul span {
+                color: #A0A600;
+            }
+
+            .mp3-container li {
+                float:left;
+                margin-right:1em;
+            }
+
+            .mp3-container p span.track-name {
+                color: #CC0090;
+            }
+
+            -->
+
+        </style>
 
         <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
         <!--[if lt IE 9]>
@@ -66,17 +104,39 @@
                 <div class="span2"></div>
             </div-->
 
-            <!--div class="subscription-form-container row-fluid">
-                <h2>Subscribe</h2>
-                <form class="form-inline" action="assets/sendmail.php" method="post">
-                    <input type="text" name="email" placeholder="enter your email...">
-                    <button type="submit" class="btn"></button>
-                </form>
-                <div class="success-message"></div>
-                <div class="error-message"></div>
-            </div-->
+
 
         </div>
+        <div id = "jquery_jplayer" style="width:0px;height:0px;">
+            <img id="jp_poster_0" style="width:0px;height:0px;display:none;">
+            <audio id="jp_audio_0" preload="metadata" src="http://www.leeteuk.org/mp3/MrSimple.mp3">
+            </audio>
+
+        </div>
+
+        <div id="jp_container" class="mp3-container" >
+            <ul>
+                <li>
+                    <span>Select a track :</span>
+                </li>
+                <li>
+                    <a href="http://www.leeteuk.org/mp3/MrSimple.mp3" class="track track-default">Mr Simple</a>
+                </li>
+            </ul>
+
+            <ul>
+                <li>
+                    <a class="jp-play" href="#" style="display:inline;">Play</a>
+                </li>
+                <li>
+                    <a class="jp-pause" href="#" style="display:none">Pause</a>
+                </li>
+                <li>
+                    <a class="jp-stop" href="#">Stop</a>
+                </li>
+            </ul>
+        </div>
+
 
 
 
@@ -86,11 +146,91 @@
         <!-- Javascript -->
         <script src="http://vjs.zencdn.net/c/video.js"></script>
         <script src="assets/js/jquery-1.8.2.min.js"></script>
+        <script src="assets/js/jquery.jplayer.min.js"></script>
         <script src="assets/js/jquery.countdown.js"></script>
         <script src="assets/js/supersized.3.2.7.min.js"></script>
         <script src="assets/js/supersized-init.js"></script>
         <script src="assets/js/jquery.tweet.js"></script>
         <script src="assets/js/scripts.js"></script>
+
+        <script type="text/javascript">
+
+            //<![CDATA[
+
+            $(document).ready(function(){
+
+
+
+
+
+                // Local copy of jQuery selectors, for performance.
+                var	my_jPlayer = $("#jquery_jplayer"),
+                        my_trackName = $("#jp_container .track-name"),
+                        my_playState = $("#jp_container .play-state"),
+                        my_extraPlayInfo = $("#jp_container .extra-play-info");
+
+                // Some options
+                var	opt_play_first = false, // If true, will attempt to auto-play the default track on page loads. No effect on mobile devices, like iOS.
+                        opt_auto_play = true, // If true, when a track is selected, it will auto-play.
+                        opt_text_playing = "Now playing", // Text when playing
+                        opt_text_selected = "Track selected"; // Text when not playing
+
+                // A flag to capture the first track
+                var first_track = true;
+
+                // Change the time format
+                $.jPlayer.timeFormat.padMin = false;
+                $.jPlayer.timeFormat.padSec = false;
+                $.jPlayer.timeFormat.sepMin = " min ";
+                $.jPlayer.timeFormat.sepSec = " sec";
+
+                // Initialize the play state text
+                my_playState.text(opt_text_selected);
+
+                // Instance jPlayer
+                my_jPlayer.jPlayer({
+                    ready: function () {
+                        $("#jp_container .track-default").click();
+                    },
+                    timeupdate: function(event) {
+                        my_extraPlayInfo.text(parseInt(event.jPlayer.status.currentPercentAbsolute, 10) + "%");
+                    },
+                    play: function(event) {
+                        my_playState.text(opt_text_playing);
+                    },
+                    pause: function(event) {
+                        my_playState.text(opt_text_selected);
+                    },
+                    ended: function(event) {
+                        my_playState.text(opt_text_selected);
+                    },
+                    swfPath: "js",
+                    cssSelectorAncestor: "#jp_container",
+                    supplied: "mp3",
+                    wmode: "window"
+                });
+
+                // Create click handlers for the different tracks
+                $("#jp_container .track").click(function(e) {
+
+
+                    //$(this).effect("hightlight",{},3000);
+                    my_trackName.text($(this).text());
+                    my_jPlayer.jPlayer("setMedia", {
+                        mp3: $(this).attr("href")
+                    });
+                    if((opt_play_first && first_track) || (opt_auto_play && !first_track)) {
+                        my_jPlayer.jPlayer("play");
+                    }
+                    first_track = false;
+                    $(this).blur();
+                    return false;
+                });
+
+            });
+            //]]>
+
+        </script>
 
     </body>
 
